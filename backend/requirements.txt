@@ -1,0 +1,13 @@
+--index-url https://download.pytorch.org/whl/cpu
+--extra-index-url https://pypi.org/simple
+
+torch
+torchvision
+Flask==3.0.3
+flask-cors==4.0.1
+gunicorn==22.0.0
+Pillow==10.4.0
+numpy
+opencv-python-headless==4.10.0.84
+requests==2.32.3
+beautifulsoup4==4.12.3
