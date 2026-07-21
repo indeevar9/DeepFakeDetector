@@ -1471,7 +1471,8 @@ body.no-anim .bg-gradient { animation: none; }
 }
 
 .hero-highlight {
-  color: var(--accent-primary);
+  color: #3b9dff;
+}
 }
 
 .hero-subtitle {
