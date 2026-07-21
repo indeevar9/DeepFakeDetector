@@ -13,7 +13,7 @@
   // No localhost is used. Replace this default with your actual Render URL
   // after deployment, or simply set it once in the Settings page (it is
   // saved to the browser's localStorage and used from then on).
-  const DEFAULT_API_URL = "https://deepshield-ai-backend.onrender.com";
+  const DEFAULT_API_URL = "https://deepfakedetector-3epb.onrender.com";
 
   const STORAGE_KEYS = {
     apiUrl: "deepshield_api_url",
