@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DeepShield AI v3 — Deepfake Image Detection</title>
+  <meta name="description" content="DeepShield AI v3 — Real-time AI-powered deepfake and image authenticity detection." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <div class="bg-gradient"></div>
+  <div class="bg-grid"></div>
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🛡️</div>
+      <div class="brand-text">
+        <span class="brand-name">DeepShield</span>
+        <span class="brand-version">AI v3</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">⬛</span> Dashboard
+      </button>
+      <button class="nav-item" data-page="history">
+        <span class="nav-icon">🕘</span> Scan History
+      </button>
+      <button class="nav-item" data-page="analytics">
+        <span class="nav-icon">📊</span> Analytics
+      </button>
+      <button class="nav-item" data-page="settings">
+        <span class="nav-icon">⚙️</span> Settings
+      </button>
+      <button class="nav-item" data-page="about">
+        <span class="nav-icon">ℹ️</span> About
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="api-status" id="apiStatusPill">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Checking API…</span>
+      </div>
+    </div>
+  </aside>
+
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">☰</button>
+
+  <!-- ===================== MAIN CONTENT ===================== -->
+  <main class="main-content">
+
+    <!-- ---------- DASHBOARD PAGE ---------- -->
+  <section class="page active" id="page-dashboard">
+      <div class="hero-banner">
+        <h1 class="hero-title">Detect Fake.<br><span class="hero-highlight">Trust Real.</span></h1>
+        <p class="hero-subtitle">AI-powered deepfake detection for images, using EfficientNet-B0.</p>
+      </div>
+
+      <div class="dashboard-grid">
+
+        <!-- Upload Card -->
+        <div class="glass-card upload-card">
+          <h2 class="card-title">Upload Image</h2>
+
+          <div class="dropzone" id="dropzone">
+            <input type="file" id="fileInput" accept="image/*,video/*" multiple hidden />
+            <div class="dropzone-content" id="dropzoneContent">
+              <div class="upload-icon">
+                <svg width="52" height="52" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 16V4M12 4L7 9M12 4L17 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M4 16.5V17.5C4 18.8807 5.11929 20 6.5 20H17.5C18.8807 20 20 18.8807 20 17.5V16.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <p class="dropzone-title">Drag & drop image(s) or a video here</p>
+              <p class="dropzone-sub">Images: JPG, PNG, WEBP up to 10MB each — select multiple to batch scan (up to 15). Video: MP4, MOV, WEBM up to 50MB (one at a time, sampled frame-by-frame).</p>
+            </div>
+
+            <div class="preview-wrap hidden" id="previewWrap">
+              <img id="previewImage" alt="Preview" />
+              <button class="remove-btn" id="removeBtn" aria-label="Remove image">✕</button>
+            </div>
+
+            <div class="preview-wrap hidden" id="videoPreviewWrap">
+              <video id="previewVideo" controls muted></video>
+              <button class="remove-btn" id="videoRemoveBtn" aria-label="Remove video">✕</button>
+            </div>
+
+            <div class="batch-preview-wrap hidden" id="batchPreviewWrap">
+              <p class="batch-count-label" id="batchCountLabel">0 images selected</p>
+              <div class="batch-thumbs" id="batchThumbs"></div>
+              <button class="remove-btn batch-remove-btn" id="batchRemoveBtn" aria-label="Clear selection">✕ Clear all</button>
+            </div>
+          </div>
+
+          <div class="upload-actions">
+            <button class="btn btn-secondary" id="chooseBtn">Choose File(s)</button>
+            <button class="btn btn-primary" id="scanBtn" disabled>
+              <span id="scanBtnText">Scan Image</span>
+            </button>
+          </div>
+
+          <p class="filename-display" id="filenameDisplay"></p>
+        </div>
+
+        <!-- Result Card -->
+        <div class="glass-card result-card" id="resultCard">
+          <h2 class="card-title">Analysis Result</h2>
+
+          <div class="result-empty" id="resultEmpty">
+            <div class="empty-icon">🔍</div>
+            <p>No scan yet. Upload an image and click <strong>Scan Image</strong> to begin.</p>
+          </div>
+
+          <div class="result-loading hidden" id="resultLoading">
+            <div class="scan-animation">
+              <div class="scan-line"></div>
+              <div class="scan-grid"></div>
+            </div>
+            <p class="loading-text">Analyzing pixel patterns, compression artifacts & facial consistency…</p>
+          </div>
+
+          <div class="result-content hidden" id="resultContent">
+            <div class="verdict-badge" id="verdictBadge">
+              <span id="verdictLabel">REAL</span>
+            </div>
+
+            <div class="confidence-block">
+              <div class="confidence-label">
+                <span>Confidence</span>
+                <span id="confidenceValue">0%</span>
+              </div>
+              <div class="confidence-meter">
+                <div class="confidence-fill" id="confidenceFill"></div>
+              </div>
+            </div>
+
+            <div class="result-details">
+              <div class="detail-row">
+                <span class="detail-key">Filename</span>
+                <span class="detail-val" id="detailFilename">—</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Model</span>
+                <span class="detail-val">EfficientNet-B0</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Scanned</span>
+                <span class="detail-val" id="detailTimestamp">—</span>
+              </div>
+            </div>
+
+            <p class="explanation" id="explanationText"></p>
+
+            <div class="result-actions">
+              <button class="btn btn-secondary" id="downloadBtn">⬇ Download PDF Report</button>
+              <button class="btn btn-ghost" id="scanAnotherBtn">Scan Another</button>
+            </div>
+          </div>
+
+          <div class="result-error hidden" id="resultError">
+            <div class="empty-icon">⚠️</div>
+            <p id="errorText">Something went wrong. Please try again.</p>
+          </div>
+
+          <div class="batch-result-loading hidden" id="batchResultLoading">
+            <div class="scan-animation">
+              <div class="scan-line"></div>
+              <div class="scan-grid"></div>
+            </div>
+            <p class="loading-text" id="batchLoadingText">Scanning batch…</p>
+          </div>
+
+          <div class="batch-result-content hidden" id="batchResultContent">
+            <div class="batch-summary-row">
+              <div class="batch-summary-stat"><span id="batchStatTotal">0</span><small>Scanned</small></div>
+              <div class="batch-summary-stat"><span id="batchStatReal">0</span><small>Real</small></div>
+              <div class="batch-summary-stat"><span id="batchStatFake">0</span><small>Fake</small></div>
+              <div class="batch-summary-stat"><span id="batchStatErrors">0</span><small>Failed</small></div>
+            </div>
+
+            <div class="batch-table-wrap">
+              <table class="batch-results-table">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Filename</th>
+                    <th>Result</th>
+                    <th>Confidence</th>
+                  </tr>
+                </thead>
+                <tbody id="batchResultsBody"></tbody>
+              </table>
+            </div>
+
+            <div class="result-actions">
+              <button class="btn btn-secondary" id="batchDownloadBtn">⬇ Download PDF Report</button>
+              <button class="btn btn-ghost" id="batchScanAnotherBtn">Scan Another Batch</button>
+            </div>
+          </div>
+
+          <div class="batch-result-loading hidden" id="videoResultLoading">
+            <div class="scan-animation">
+              <div class="scan-line"></div>
+              <div class="scan-grid"></div>
+            </div>
+            <p class="loading-text" id="videoLoadingText">Sampling and analyzing video frames…</p>
+          </div>
+
+          <div class="batch-result-content hidden" id="videoResultContent">
+            <div class="verdict-badge" id="videoVerdictBadge">
+              <span id="videoVerdictLabel">REAL</span>
+            </div>
+
+            <div class="confidence-block">
+              <div class="confidence-label">
+                <span>Overall Confidence</span>
+                <span id="videoConfidenceValue">0%</span>
+              </div>
+              <div class="confidence-meter">
+                <div class="confidence-fill" id="videoConfidenceFill"></div>
+              </div>
+            </div>
+
+            <div class="batch-summary-row">
+              <div class="batch-summary-stat"><span id="videoStatFrames">0</span><small>Frames analyzed</small></div>
+              <div class="batch-summary-stat"><span id="videoStatFakeFrames">0</span><small>Flagged fake</small></div>
+              <div class="batch-summary-stat"><span id="videoStatFakeRatio">0%</span><small>Fake ratio</small></div>
+            </div>
+
+            <p class="explanation" id="videoExplanationText"></p>
+
+            <div class="batch-table-wrap">
+              <table class="batch-results-table">
+                <thead>
+                  <tr>
+                    <th>Frame</th>
+                    <th>Timestamp</th>
+                    <th>Result</th>
+                    <th>Confidence</th>
+                  </tr>
+                </thead>
+                <tbody id="videoFrameResultsBody"></tbody>
+              </table>
+            </div>
+
+            <div class="result-actions">
+              <button class="btn btn-secondary" id="videoDownloadBtn">⬇ Download PDF Report</button>
+              <button class="btn btn-ghost" id="videoScanAnotherBtn">Scan Another Video</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- URL Scan -->
+      <div class="glass-card url-scan-card">
+        <div class="card-header">
+          <h2 class="card-title">Scan a URL</h2>
+        </div>
+        <p class="url-scan-sub">Fetches the page, checks for phishing-style URL patterns, and scans any images found on it for AI-generated or manipulated content. Doesn't fact-check claims or detect explicit content.</p>
+
+        <div class="url-input-row">
+          <input type="url" id="urlInput" placeholder="https://example.com/article" autocomplete="off" />
+          <button class="btn btn-primary" id="urlScanBtn">Scan URL</button>
+        </div>
+
+        <div class="url-result-empty" id="urlResultEmpty">
+          <p>Paste a link above to check it for phishing-style patterns and scan its images.</p>
+        </div>
+
+        <div class="url-result-loading hidden" id="urlResultLoading">
+          <div class="scan-animation small">
+            <div class="scan-line"></div>
+            <div class="scan-grid"></div>
+          </div>
+          <p class="loading-text" id="urlLoadingText">Fetching and analyzing page…</p>
+        </div>
+
+        <div class="url-result-error hidden" id="urlResultError">
+          <div class="empty-icon">⚠️</div>
+          <p id="urlErrorText">Something went wrong. Please try again.</p>
+        </div>
+
+        <div class="url-result-content hidden" id="urlResultContent">
+          <div class="url-summary">
+            <div class="url-summary-main">
+              <span class="risk-badge" id="urlRiskBadge">LOW RISK</span>
+              <div class="url-summary-text">
+                <p class="url-domain" id="urlDomain">example.com</p>
+                <p class="url-title" id="urlPageTitle"></p>
+              </div>
+            </div>
+            <span class="https-badge" id="urlHttpsBadge">🔒 HTTPS</span>
+          </div>
+
+          <div class="url-flags-wrap" id="urlFlagsWrap"></div>
+
+          <div class="batch-summary-row">
+            <div class="batch-summary-stat"><span id="urlStatImages">0</span><small>Images found</small></div>
+            <div class="batch-summary-stat"><span id="urlStatScanned">0</span><small>Scanned</small></div>
+            <div class="batch-summary-stat"><span id="urlStatFake">0</span><small>Flagged fake</small></div>
+          </div>
+
+          <div class="batch-table-wrap" id="urlImagesTableWrap">
+            <table class="batch-results-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Image</th>
+                  <th>Result</th>
+                  <th>Confidence</th>
+                </tr>
+              </thead>
+              <tbody id="urlImagesBody"></tbody>
+            </table>
+          </div>
+
+          <div class="result-actions">
+            <button class="btn btn-secondary" id="urlDownloadBtn">⬇ Download PDF Report</button>
+            <button class="btn btn-ghost" id="urlScanAnotherBtn">Scan Another URL</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick stats -->
+      <div class="stats-row">
+        <div class="glass-card stat-card">
+          <span class="stat-value" id="statTotal">0</span>
+          <span class="stat-label">Total Scans</span>
+        </div>
+        <div class="glass-card stat-card">
+          <span class="stat-value" id="statReal">0</span>
+          <span class="stat-label">Real Detected</span>
+        </div>
+        <div class="glass-card stat-card">
+          <span class="stat-value" id="statFake">0</span>
+          <span class="stat-label">Fake Detected</span>
+        </div>
+        <div class="glass-card stat-card">
+          <span class="stat-value" id="statAvgConf">0%</span>
+          <span class="stat-label">Avg Confidence</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- HISTORY PAGE ---------- -->
+    <section class="page" id="page-history">
+      <header class="page-header">
+        <div>
+          <h1>Scan History</h1>
+          <p class="subtitle">All the images you've analyzed in this session.</p>
+        </div>
+        <button class="btn btn-secondary" id="clearHistoryBtn">Clear History</button>
+      </header>
+
+      <div class="glass-card">
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Filename</th>
+                <th>Result</th>
+                <th>Confidence</th>
+                <th>Time</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr class="history-empty-row">
+                <td colspan="5">No scans yet. Your history will appear here.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- ANALYTICS PAGE ---------- -->
+    <section class="page" id="page-analytics">
+      <header class="page-header">
+        <div>
+          <h1>Analytics</h1>
+          <p class="subtitle">Insights from your scanning activity.</p>
+        </div>
+      </header>
+
+      <div class="dashboard-grid">
+        <div class="glass-card">
+          <h2 class="card-title">Real vs Fake Distribution</h2>
+          <div class="donut-wrap">
+            <svg viewBox="0 0 120 120" class="donut-svg">
+              <circle cx="60" cy="60" r="50" class="donut-bg" />
+              <circle cx="60" cy="60" r="50" class="donut-real" id="donutReal" />
+              <circle cx="60" cy="60" r="50" class="donut-fake" id="donutFake" />
+            </svg>
+            <div class="donut-center">
+              <span id="donutTotal">0</span>
+              <small>scans</small>
+            </div>
+          </div>
+          <div class="legend">
+            <div class="legend-item"><span class="dot dot-real"></span> Real</div>
+            <div class="legend-item"><span class="dot dot-fake"></span> Fake</div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <h2 class="card-title">Confidence Trend</h2>
+          <div class="bars-wrap" id="barsWrap">
+            <p class="chart-empty">Scan images to see confidence trends here.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- SETTINGS PAGE ---------- -->
+    <section class="page" id="page-settings">
+      <header class="page-header">
+        <div>
+          <h1>Settings</h1>
+          <p class="subtitle">Configure your DeepShield AI environment.</p>
+        </div>
+      </header>
+
+      <div class="glass-card settings-card">
+        <h2 class="card-title">Backend API</h2>
+        <p class="settings-desc">
+          Set the URL of your deployed DeepShield AI backend (Render). This is stored locally in your browser.
+        </p>
+        <div class="settings-row">
+          <input type="text" id="apiUrlInput" placeholder="https://your-backend.onrender.com" />
+          <button class="btn btn-primary" id="saveApiUrlBtn">Save</button>
+        </div>
+        <p class="settings-status" id="apiUrlSaveStatus"></p>
+
+        <div class="settings-row settings-row-actions">
+          <button class="btn btn-secondary" id="testConnectionBtn">Test Connection</button>
+        </div>
+        <p class="settings-status" id="testConnectionStatus"></p>
+      </div>
+
+      <div class="glass-card settings-card">
+        <h2 class="card-title">Appearance</h2>
+        <div class="toggle-row">
+          <span>Animated Background</span>
+          <label class="switch">
+            <input type="checkbox" id="animToggle" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- ABOUT PAGE ---------- -->
+    <section class="page" id="page-about">
+      <header class="page-header">
+        <div>
+          <h1>About DeepShield AI</h1>
+          <p class="subtitle">Understanding the technology behind the detection engine.</p>
+        </div>
+      </header>
+
+      <div class="glass-card about-card">
+        <h2 class="card-title">What is DeepShield AI?</h2>
+        <p>
+          DeepShield AI v3 is a deepfake and image-authenticity detection system built on a fine-tuned
+          <strong>EfficientNet-B0</strong> convolutional neural network. The model was trained to distinguish
+          between real, unaltered photographs and AI-generated or manipulated ("fake") images by learning
+          subtle statistical and textural artifacts left behind by generative and editing pipelines.
+        </p>
+
+        <h2 class="card-title">How it works</h2>
+        <ol class="about-list">
+          <li>You upload an image through the dashboard.</li>
+          <li>The image is sent securely to the DeepShield backend running on Render.</li>
+          <li>The backend preprocesses the image and runs it through the EfficientNet-B0 model.</li>
+          <li>The model outputs a probability distribution over <strong>REAL</strong> and <strong>FAKE</strong>.</li>
+          <li>The result, confidence score, and explanation are returned and displayed instantly.</li>
+        </ol>
+
+        <h2 class="card-title">Tech Stack</h2>
+        <div class="tech-badges">
+          <span class="badge">PyTorch</span>
+          <span class="badge">torchvision</span>
+          <span class="badge">EfficientNet-B0</span>
+          <span class="badge">Flask</span>
+          <span class="badge">Gunicorn</span>
+          <span class="badge">Netlify</span>
+          <span class="badge">Render</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
