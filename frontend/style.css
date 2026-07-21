@@ -1461,10 +1461,13 @@ body.no-anim .bg-gradient { animation: none; }
 }
 
 .hero-title {
-  font-size: 2.6rem;
-  font-weight: 700;
-  line-height: 1.2;
+  font-family: 'Poppins', 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.15;
   margin-bottom: 16px;
+}
 }
 
 .hero-highlight {
