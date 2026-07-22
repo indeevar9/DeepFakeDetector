@@ -158,7 +158,8 @@ body.no-anim .bg-gradient { animation: none; }
 }
 
 .brand-name {
-  font-weight: 700;
+  font-family: 'Poppins', 'Space Grotesk', 'Inter', sans-serif;
+  font-weight: 800;
   font-size: 1.05rem;
 }
 
@@ -1468,11 +1469,9 @@ body.no-anim .bg-gradient { animation: none; }
   line-height: 1.15;
   margin-bottom: 16px;
 }
-}
 
 .hero-highlight {
-  color: #3b9dff;
-}
+  color: #3b9dff !important;
 }
 
 .hero-subtitle {
