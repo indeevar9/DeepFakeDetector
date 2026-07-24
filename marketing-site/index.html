@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DeepShield AI — Detect Fake. Trust Real.</title>
+<meta name="description" content="DeepShield AI uses advanced artificial intelligence to detect deepfakes and protect digital authenticity." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0a0c16;
+  --glass: rgba(255,255,255,0.06);
+  --glass-strong: rgba(255,255,255,0.11);
+  --glass-border: rgba(255,255,255,0.16);
+  --glass-highlight: rgba(255,255,255,0.5);
+  --blue:#4f8cff;
+  --blue-soft:#8fd9ff;
+  --purple:#a06bff;
+  --purple-soft:#c9a6ff;
+  --cyan:#6ee7ff;
+  --red:#ff5c7a;
+  --green:#3ddc97;
+  --text-1:#f5f7fc;
+  --text-2:#aab2c8;
+  --text-3:#6d7690;
+  --ease: cubic-bezier(0.16,1,0.3,1);
+  --app-url: https://deepshieldaigvs.netlify.app;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text-1);
+  font-family:'Outfit',sans-serif;
+  overflow-x:hidden;
+  position:relative;
+}
+h1,h2,h3,h4,.brand-name{font-family:'Orbitron','Space Grotesk',sans-serif;}
+h1{font-weight:800;}
+h2{font-weight:700;}
+.brand-name{font-weight:700;letter-spacing:-.01em;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+::selection{background:var(--blue);color:#fff;}
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:10px;}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:4px;}
+
+/* ============ background ============ */
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(ellipse at 50% -10%, #131a38 0%, var(--bg) 55%);}
+.orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.5;transition:transform .8s var(--ease);}
+.orb-a{width:620px;height:620px;background:radial-gradient(circle,rgba(79,140,255,.55),transparent 70%);top:-200px;left:-160px;animation:drift 20s ease-in-out infinite alternate;}
+.orb-b{width:680px;height:680px;background:radial-gradient(circle,rgba(160,107,255,.5),transparent 70%);bottom:-260px;right:-200px;animation:drift 22s ease-in-out infinite alternate-reverse;}
+.orb-c{width:420px;height:420px;background:radial-gradient(circle,rgba(110,231,255,.28),transparent 70%);top:40%;left:50%;animation:drift 24s ease-in-out infinite;}
+@keyframes drift{0%{transform:translate(0,0) scale(1);}100%{transform:translate(50px,40px) scale(1.1);}}
+.grain{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(ellipse at 50% 0%, black 0%, transparent 68%);}
+
+/* ============ liquid glass ============ */
+.glass{
+  position:relative;
+  background:linear-gradient(155deg, var(--glass-strong), var(--glass) 60%);
+  border:1px solid var(--glass-border);
+  border-radius:26px;
+  backdrop-filter: blur(26px) saturate(160%);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+  box-shadow: 0 1px 0 0 rgba(255,255,255,0.18) inset, 0 30px 70px -30px rgba(80,60,255,.35);
+  transition: transform .45s var(--ease), box-shadow .45s var(--ease), border-color .45s var(--ease);
+}
+.glass::before{
+  content:"";
+  position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:linear-gradient(120deg, rgba(255,255,255,.16), transparent 35%);
+  opacity:.8;
+}
+
+/* ============ buttons ============ */
+.btn{display:inline-flex;align-items:center;gap:9px;padding:14px 26px;border-radius:100px;font-weight:500;font-size:.96rem;position:relative;overflow:hidden;transition:transform .3s var(--ease), box-shadow .3s var(--ease);}
+.btn:active{transform:scale(.96);}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--purple));background-size:200% 200%;color:#fff;box-shadow:0 10px 28px -10px rgba(130,110,255,.7);}
+.btn-primary:hover{transform:translateY(-3px);background-position:100% 50%;box-shadow:0 16px 36px -10px rgba(130,110,255,.85);}
+.btn-glass{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(14px);color:var(--text-1);}
+.btn-glass:hover{background:var(--glass-strong);transform:translateY(-3px);}
+.btn-lg{padding:17px 32px;font-size:1.02rem;}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);pointer-events:none;animation:rip .6s var(--ease) forwards;}
+@keyframes rip{to{transform:scale(2.6);opacity:0;}}
+
+/* ============ nav ============ */
+.nav{position:sticky;top:0;z-index:100;padding:16px 5vw;background:rgba(10,12,22,.5);backdrop-filter:blur(20px) saturate(160%);border-bottom:1px solid rgba(255,255,255,.07);}
+.nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand svg{width:30px;height:30px;filter:drop-shadow(0 0 10px rgba(79,140,255,.55));}
+.brand-name{font-size:1.1rem;font-weight:700;letter-spacing:-.02em;}
+.brand-name .accent{color:var(--blue-soft);}
+.nav-links{display:flex;gap:30px;}
+.nav-links a{color:var(--text-2);font-size:.9rem;font-weight:500;transition:color .25s;}
+.nav-links a:hover{color:var(--text-1);}
+.nav-burger{display:none;width:42px;height:42px;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text-1);align-items:center;justify-content:center;}
+
+/* ============ hero ============ */
+.hero{max-width:1180px;margin:0 auto;padding:8vh 24px 4vh;display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:100px;background:var(--glass);border:1px solid var(--glass-border);font-size:.8rem;color:var(--text-2);margin-bottom:26px;}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 0 rgba(110,231,255,.6);animation:pulse 2s infinite;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(110,231,255,.55);}70%{box-shadow:0 0 0 9px rgba(110,231,255,0);}100%{box-shadow:0 0 0 0 rgba(110,231,255,0);}}
+.hero h1{font-size:clamp(2.4rem,5vw,3.9rem);font-weight:700;line-height:1.06;letter-spacing:-.03em;}
+.grad{background:linear-gradient(100deg,var(--blue-soft),var(--purple-soft) 55%,var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero p{max-width:520px;margin-top:22px;color:var(--text-2);font-size:1.06rem;line-height:1.65;}
+.hero-actions{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap;}
+.hero-tags{display:flex;gap:22px;margin-top:38px;flex-wrap:wrap;}
+.hero-tags span{font-size:.82rem;color:var(--text-3);display:flex;align-items:center;gap:7px;}
+
+/* ============ orbit / atom visual ============ */
+.orbit-wrap{position:relative;aspect-ratio:1/1;max-width:440px;margin:0 auto;display:flex;align-items:center;justify-content:center;}
+.orbit-core{
+  position:relative;width:118px;height:118px;border-radius:32px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(155deg, rgba(79,140,255,.28), rgba(160,107,255,.2));
+  border:1px solid var(--glass-border);
+  backdrop-filter:blur(14px);
+  box-shadow:0 0 60px 10px rgba(120,110,255,.35), 0 1px 0 0 rgba(255,255,255,.25) inset;
+  animation:corePulse 4s ease-in-out infinite;
+  z-index:5;
+}
+@keyframes corePulse{0%,100%{box-shadow:0 0 50px 6px rgba(120,110,255,.3), 0 1px 0 0 rgba(255,255,255,.25) inset;}50%{box-shadow:0 0 78px 16px rgba(120,110,255,.5), 0 1px 0 0 rgba(255,255,255,.25) inset;}}
+.orbit-core svg{width:56px;height:56px;filter:drop-shadow(0 0 14px rgba(110,231,255,.6));}
+
+.orbit-ring{position:absolute;top:50%;left:50%;border:1px solid rgba(255,255,255,.16);border-radius:50%;}
+.ring-1{width:230px;height:230px;margin:-115px 0 0 -115px;transform:rotate(18deg);}
+.ring-2{width:320px;height:150px;margin:-75px 0 0 -160px;transform:rotate(-24deg);}
+.ring-3{width:320px;height:150px;margin:-75px 0 0 -160px;transform:rotate(56deg);}
+
+.electron{position:absolute;top:50%;left:50%;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px 4px rgba(110,231,255,.75);offset-rotate:0deg;}
+.ring-1 .electron{offset-path:ellipse(115px 115px at 50% 50%);animation:spin1 7s linear infinite;}
+.ring-2 .electron{offset-path:ellipse(160px 75px at 50% 50%);background:var(--blue-soft);box-shadow:0 0 14px 4px rgba(143,217,255,.7);animation:spin2 9s linear infinite;}
+.ring-3 .electron{offset-path:ellipse(160px 75px at 50% 50%);background:var(--purple-soft);box-shadow:0 0 14px 4px rgba(201,166,255,.7);animation:spin3 11s linear infinite;}
+
+@keyframes spin1{from{offset-distance:0%;}to{offset-distance:100%;}}
+@keyframes spin2{from{offset-distance:0%;}to{offset-distance:100%;}}
+@keyframes spin3{from{offset-distance:100%;}to{offset-distance:0%;}}
+
+.orbit-dot{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--cyan);opacity:.7;}
+.orbit-wrap .orbit-dot:nth-child(1){top:6%;left:20%;animation:twinkle 3s ease-in-out infinite;}
+.orbit-wrap .orbit-dot:nth-child(2){top:82%;left:10%;animation:twinkle 3.5s ease-in-out infinite .5s;}
+.orbit-wrap .orbit-dot:nth-child(3){top:14%;left:86%;animation:twinkle 2.6s ease-in-out infinite 1s;}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(1);}50%{opacity:.9;transform:scale(1.6);}}
+
+@media (max-width:520px){ .ring-1{width:190px;height:190px;margin:-95px 0 0 -95px;} .ring-2,.ring-3{width:260px;height:130px;margin:-65px 0 0 -130px;}
+  .ring-1 .electron{offset-path:ellipse(95px 95px at 50% 50%);}
+  .ring-2 .electron{offset-path:ellipse(130px 65px at 50% 50%);}
+  .ring-3 .electron{offset-path:ellipse(130px 65px at 50% 50%);}
+}
+
+/* ============ reveal on scroll ============ */
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .8s var(--ease), transform .8s var(--ease);}
+.reveal.in{opacity:1;transform:translateY(0);}
+.stagger .reveal.in:nth-child(1){transition-delay:0s;}
+.stagger .reveal.in:nth-child(2){transition-delay:.08s;}
+.stagger .reveal.in:nth-child(3){transition-delay:.16s;}
+.stagger .reveal.in:nth-child(4){transition-delay:.24s;}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none;} .orb,.electron,.orbit-core,.pulse,.orbit-dot{animation:none!important;}}
+
+/* ============ sections shared ============ */
+section{max-width:1180px;margin:0 auto;padding:11vh 24px;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--blue-soft);font-weight:600;margin-bottom:14px;}
+.eyebrow.red{color:var(--red);}
+.sec-head{max-width:640px;margin-bottom:52px;}
+.sec-head h2{font-size:clamp(1.8rem,4vw,2.5rem);letter-spacing:-.02em;line-height:1.15;}
+.sec-head p{color:var(--text-2);margin-top:14px;font-size:1.02rem;line-height:1.6;}
+
+/* ============ problem ============ */
+.problem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.problem-card{padding:30px;}
+.problem-card .num{font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:700;color:var(--red);opacity:.8;margin-bottom:16px;}
+.problem-card h3{font-size:1.08rem;margin-bottom:10px;}
+.problem-card p{color:var(--text-2);font-size:.92rem;line-height:1.6;}
+.problem-stat{display:flex;align-items:baseline;gap:8px;margin-top:16px;}
+.problem-stat b{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;color:var(--text-1);}
+.problem-stat span{font-size:.76rem;color:var(--text-3);}
+
+/* ============ solution ============ */
+.solution{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;}
+.solution-visual{padding:34px;}
+.solution-row{display:flex;gap:16px;align-items:flex-start;padding:16px 0;border-bottom:1px solid var(--glass-border);}
+.solution-row:last-child{border-bottom:none;}
+.icon{width:1em;height:1em;display:inline-block;vertical-align:-0.14em;flex-shrink:0;}
+.btn .icon{width:0.98em;height:0.98em;}
+.eyebrow .icon{width:0.85em;height:0.85em;}
+.hero-tags .icon{width:0.9em;height:0.9em;color:var(--blue-soft);}
+.mock-badge .icon{width:0.95em;height:0.95em;}
+.sr-icon{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg, rgba(79,140,255,.2),rgba(160,107,255,.2));display:flex;align-items:center;justify-content:center;color:var(--blue-soft);flex-shrink:0;}
+.sr-icon .icon{width:18px;height:18px;}
+.f-icon .icon{width:20px;height:20px;}
+.nav-burger .icon{width:20px;height:20px;}
+.solution-row h4{font-size:.98rem;margin-bottom:4px;}
+.solution-row p{font-size:.86rem;color:var(--text-2);line-height:1.55;}
+.solution-copy p{color:var(--text-2);font-size:1.02rem;line-height:1.7;margin-bottom:18px;}
+
+@media (max-width:900px){.solution{grid-template-columns:1fr;} .solution-visual{order:2;}}
+
+/* mini result mock inside solution visual */
+.mock-result{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+.mock-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:100px;background:rgba(61,220,151,.14);color:var(--green);font-weight:700;font-family:'Space Grotesk',sans-serif;box-shadow:inset 0 0 0 1px rgba(61,220,151,.35);}
+.mock-conf{font-size:.82rem;color:var(--text-2);}
+.mock-bar-track{height:8px;border-radius:100px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:22px;}
+.mock-bar-fill{height:100%;width:0%;border-radius:100px;background:linear-gradient(90deg,var(--blue),var(--purple));transition:width 1.4s var(--ease);}
+
+/* ============ features ============ */
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.feature-card{padding:28px;}
+.f-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:16px;transition:transform .4s var(--ease);}
+.feature-card:hover .f-icon{transform:translateY(-4px) scale(1.08) rotate(-4deg);}
+.icon-blue{background:rgba(79,140,255,.15);color:var(--blue-soft);}
+.icon-purple{background:rgba(160,107,255,.15);color:var(--purple-soft);}
+.feature-card:hover{transform:translateY(-6px);border-color:rgba(143,217,255,.35);}
+.feature-card h3{font-size:1.04rem;margin-bottom:8px;}
+.feature-card p{color:var(--text-2);font-size:.88rem;line-height:1.55;}
+
+/* ============ how ============ */
+.how-steps{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;text-align:center;}
+.how-step{width:230px;}
+.how-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue-soft),var(--purple-soft));color:var(--bg);font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.how-step h4{margin-bottom:8px;}
+.how-step p{color:var(--text-2);font-size:.88rem;line-height:1.55;}
+.how-line{width:60px;height:1px;background:linear-gradient(90deg,var(--blue),var(--purple));margin-top:17px;opacity:.5;}
+@media (max-width:760px){.how-line{display:none;}}
+
+/* ============ cta ============ */
+.cta{padding:60px 10vw;text-align:center;margin:0 auto 12vh;max-width:1100px;}
+.cta h2{font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.02em;margin-bottom:16px;}
+.cta p{color:var(--text-2);max-width:520px;margin:0 auto 30px;font-size:1.02rem;line-height:1.6;}
+.cta-actions{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;}
+
+/* ============ footer ============ */
+footer{text-align:center;padding:30px 24px 60px;color:var(--text-3);font-size:.85rem;}
+.foot-brand{display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Space Grotesk',sans-serif;font-weight:600;color:var(--text-2);margin-bottom:10px;}
+
+/* ============ responsive ============ */
+@media (max-width:980px){
+  .hero{grid-template-columns:1fr;text-align:center;}
+  .hero p{margin-inline:auto;}
+  .hero-actions,.hero-tags{justify-content:center;}
+  .orbit-wrap{margin-top:20px;}
+  .problem-grid{grid-template-columns:1fr;}
+  .feature-grid{grid-template-columns:1fr 1fr;}
+  .nav-links{display:none;}
+}
+@media (max-width:620px){
+  .feature-grid{grid-template-columns:1fr;}
+  .nav-burger{display:flex;}
+}
+</style>
+</head>
+<body>
+
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+  </symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+  </symbol>
+  <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/><line x1="12" y1="16" x2="12" y2="11.5"/><circle cx="12" cy="8" r="0.15" fill="currentColor" stroke="currentColor" stroke-width="2"/>
+  </symbol>
+  <symbol id="i-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.5" cy="8.5" r="1.6"/><polyline points="21 15 16 10 5 21"/>
+  </symbol>
+  <symbol id="i-film" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><polygon points="10 9 15.5 12 10 15" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>
+  </symbol>
+  <symbol id="i-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3.5 12a8.5 8.5 0 1 0 2.8-6.3"/><polyline points="3 3.5 3.3 6.8 6.6 6.5"/><polyline points="12 8 12 12.3 15 14.2"/>
+  </symbol>
+  <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9.5 14.5 L14.5 9.5"/>
+    <path d="M8 13 L5.8 15.2 a3.2 3.2 0 0 0 4.5 4.5 L12.5 17.5"/>
+    <path d="M16 11 L18.2 8.8 a3.2 3.2 0 0 0 -4.5 -4.5 L11.5 6.5"/>
+  </symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4.5" y="10.5" width="15" height="9.5" rx="2.2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>
+  </symbol>
+  <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="9" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="9" y1="18" x2="21" y2="18"/>
+    <circle cx="4" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3 L22 20 L2 20 Z"/><line x1="12" y1="9.5" x2="12" y2="14"/><circle cx="12" cy="17" r="0.15" fill="currentColor" stroke-width="2"/>
+  </symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/><polyline points="8 12.3 11 15.3 16 9.3"/>
+  </symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.2" y1="15.2" x2="20.5" y2="20.5"/>
+  </symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="2 12 6 12 9 4 13 20 16 12 22 12"/>
+  </symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2.5 L20 6 V11 C20 16.5 16.6 20.5 12 22 C7.4 20.5 4 16.5 4 11 V6 Z"/>
+  </symbol>
+</svg>
+
+<div class="bg" aria-hidden="true">
+  <div class="orb orb-a" id="orbA"></div>
+  <div class="orb orb-b" id="orbB"></div>
+  <div class="orb orb-c"></div>
+  <div class="grain"></div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#top" class="brand">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M24 4L42 11V22C42 33.5 34.6 41.8 24 45C13.4 41.8 6 33.5 6 22V11L24 4Z" fill="url(#g1)" stroke="url(#g2)" stroke-width="1.5"/>
+        <circle cx="24" cy="22.5" r="4.2" fill="#0a0c16"/>
+        <circle cx="24" cy="22.5" r="2.1" fill="#6ee7ff"/>
+        <defs>
+          <linearGradient id="g1" x1="6" y1="4" x2="42" y2="45" gradientUnits="userSpaceOnUse"><stop stop-color="#4f8cff"/><stop offset="1" stop-color="#a06bff"/></linearGradient>
+          <linearGradient id="g2" x1="6" y1="4" x2="42" y2="45" gradientUnits="userSpaceOnUse"><stop stop-color="#8fd9ff"/><stop offset="1" stop-color="#c9a6ff"/></linearGradient>
+        </defs>
+      </svg>
+      <span class="brand-name">DeepShield <span class="accent">AI</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#problem">Problem</a>
+      <a href="#solution">Solution</a>
+      <a href="#features">Features</a>
+      <a href="#how">How it Works</a>
+    </div>
+    <a class="btn btn-primary" href="https://deepshieldaigvs.netlify.app" target="_blank" rel="noopener">
+      <svg class="icon"><use href="#i-shield"/></svg> Launch App
+    </a>
+    <button class="nav-burger" aria-label="Menu"><svg class="icon"><use href="#i-menu"/></svg></button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div>
+    <div class="hero-badge"><span class="pulse"></span> AI-powered deepfake detection</div>
+    <h1>Detect Fake.<br/><span class="grad">Trust Real.</span></h1>
+    <p>Deepfakes are getting harder to spot — and easier to spread. DeepShield AI analyzes images and video in seconds, giving you a clear, evidence-backed verdict on whether what you're seeing is real.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="https://deepshieldaigvs.netlify.app" target="_blank" rel="noopener"><svg class="icon"><use href="#i-bolt"/></svg> Try DeepShield AI</a>
+      <a class="btn btn-glass btn-lg" href="#solution"><svg class="icon"><use href="#i-info"/></svg> See how it works</a>
+    </div>
+    <div class="hero-tags">
+      <span><svg class="icon"><use href="#i-image"/></svg> Image analysis</span>
+      <span><svg class="icon"><use href="#i-film"/></svg> Video analysis</span>
+      <span><svg class="icon"><use href="#i-bolt"/></svg> Results in seconds</span>
+    </div>
+  </div>
+
+  <div class="orbit-wrap" aria-hidden="true">
+    <div class="orbit-dot"></div><div class="orbit-dot"></div><div class="orbit-dot"></div>
+    <div class="orbit-ring ring-1"><div class="electron"></div></div>
+    <div class="orbit-ring ring-2"><div class="electron"></div></div>
+    <div class="orbit-ring ring-3"><div class="electron"></div></div>
+    <div class="orbit-core">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M24 4L42 11V22C42 33.5 34.6 41.8 24 45C13.4 41.8 6 33.5 6 22V11L24 4Z" stroke="url(#g3)" stroke-width="2"/>
+        <path d="M17 23.5L22 28.5L32 17.5" stroke="#6ee7ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs><linearGradient id="g3" x1="6" y1="4" x2="42" y2="45" gradientUnits="userSpaceOnUse"><stop stop-color="#8fd9ff"/><stop offset="1" stop-color="#c9a6ff"/></linearGradient></defs>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="sec-head reveal">
+    <span class="eyebrow red"><svg class="icon"><use href="#i-alert"/></svg> The Problem</span>
+    <h2>Seeing is no longer believing</h2>
+    <p>Generative AI has made synthetic photos and videos nearly indistinguishable from the real thing — and the tools to create them are more accessible than ever.</p>
+  </div>
+  <div class="problem-grid stagger">
+    <div class="glass problem-card reveal">
+      <div class="num">01</div>
+      <h3>Misinformation spreads faster than fact-checks</h3>
+      <p>A convincing fake can circulate for hours before anyone flags it — by then the damage to public trust is already done.</p>
+    </div>
+    <div class="glass problem-card reveal">
+      <div class="num">02</div>
+      <h3>Fraud and impersonation are scaling up</h3>
+      <p>Voice and face cloning are being used to impersonate executives, public figures, and even family members in scams.</p>
+    </div>
+    <div class="glass problem-card reveal">
+      <div class="num">03</div>
+      <h3>Platforms and journalists are overwhelmed</h3>
+      <p>Manual verification doesn't scale to the volume of media uploaded every minute — teams need a fast, reliable first pass.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section id="solution">
+  <div class="solution">
+    <div class="solution-copy reveal">
+      <span class="eyebrow"><svg class="icon"><use href="#i-shield"/></svg> The Solution</span>
+      <h2 style="font-size:clamp(1.8rem,4vw,2.5rem);letter-spacing:-.02em;margin-bottom:18px;">A verdict you can act on, in seconds</h2>
+      <p>DeepShield AI inspects the signals a synthetic generator can't quite fake — facial geometry, texture consistency, compression patterns, and frame-to-frame coherence in video.</p>
+      <p>Every scan returns a clear REAL or FAKE verdict, a confidence score, and plain-language reasoning — so you're never just taking an algorithm's word for it.</p>
+      <a class="btn btn-primary" href="https://deepshieldaigvs.netlify.app" target="_blank" rel="noopener"><svg class="icon"><use href="#i-shield"/></svg> Scan your first file</a>
+    </div>
+
+    <div class="glass solution-visual reveal" id="solutionVisual">
+      <div class="mock-result">
+        <span class="mock-badge"><svg class="icon"><use href="#i-check-circle"/></svg> REAL</span>
+        <span class="mock-conf">96% confidence</span>
+      </div>
+      <div class="mock-bar-track"><div class="mock-bar-fill" id="mockBar"></div></div>
+
+      <div class="solution-row">
+        <div class="sr-icon"><svg class="icon"><use href="#i-search"/></svg></div>
+        <div><h4>Facial &amp; texture forensics</h4><p>Detects geometry and texture patterns consistent with genuine capture.</p></div>
+      </div>
+      <div class="solution-row">
+        <div class="sr-icon"><svg class="icon"><use href="#i-wave"/></svg></div>
+        <div><h4>Compression &amp; artifact analysis</h4><p>Flags the digital fingerprints generative models leave behind.</p></div>
+      </div>
+      <div class="solution-row">
+        <div class="sr-icon"><svg class="icon"><use href="#i-clock"/></svg></div>
+        <div><h4>Fast, transparent results</h4><p>A full report with reasoning, delivered in under two seconds.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="sec-head reveal">
+    <span class="eyebrow"><svg class="icon"><use href="#i-bolt"/></svg> Capabilities</span>
+    <h2>Built to see what the eye can't</h2>
+  </div>
+  <div class="feature-grid stagger">
+    <div class="glass feature-card reveal">
+      <div class="f-icon icon-blue"><svg class="icon"><use href="#i-image"/></svg></div>
+      <h3>Image Forensics</h3>
+      <p>Pixel-level analysis flags GAN artifacts, blending seams, and lighting inconsistencies.</p>
+    </div>
+    <div class="glass feature-card reveal">
+      <div class="f-icon icon-purple"><svg class="icon"><use href="#i-film"/></svg></div>
+      <h3>Video Frame Scanning</h3>
+      <p>Frame-by-frame analysis catches flickering, warping, and unnatural motion.</p>
+    </div>
+    <div class="glass feature-card reveal">
+      <div class="f-icon icon-blue"><svg class="icon"><use href="#i-target"/></svg></div>
+      <h3>Confidence Scoring</h3>
+      <p>Every verdict ships with a transparent score and plain-language reasoning.</p>
+    </div>
+    <div class="glass feature-card reveal">
+      <div class="f-icon icon-purple"><svg class="icon"><use href="#i-history"/></svg></div>
+      <h3>Scan History</h3>
+      <p>Revisit past results and track trends across everything you've checked.</p>
+    </div>
+    <div class="glass feature-card reveal">
+      <div class="f-icon icon-blue"><svg class="icon"><use href="#i-link"/></svg></div>
+      <h3>URL Scanning</h3>
+      <p>Paste a link and DeepShield analyzes media hosted anywhere on the web.</p>
+    </div>
+    <div class="glass feature-card reveal">
+      <div class="f-icon icon-purple"><svg class="icon"><use href="#i-lock"/></svg></div>
+      <h3>Private by Design</h3>
+      <p>Files are analyzed transiently — nothing is stored beyond the scan window.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section id="how">
+  <div class="sec-head reveal" style="margin-inline:auto;text-align:center;">
+    <span class="eyebrow"><svg class="icon"><use href="#i-list"/></svg> Process</span>
+    <h2>Three steps to certainty</h2>
+  </div>
+  <div class="how-steps stagger">
+    <div class="how-step reveal"><div class="how-num">01</div><h4>Upload</h4><p>Drop in an image or video — or paste a URL.</p></div>
+    <div class="how-line"></div>
+    <div class="how-step reveal"><div class="how-num">02</div><h4>Analyze</h4><p>Our pipeline inspects texture, geometry, and compression signatures.</p></div>
+    <div class="how-line"></div>
+    <div class="how-step reveal"><div class="how-num">03</div><h4>Verify</h4><p>Get a REAL / FAKE verdict with confidence score and reasoning.</p></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section>
+  <div class="glass cta reveal">
+    <h2>Ready to know what's real?</h2>
+    <p>Launch DeepShield AI and run your first scan in under a minute — no signup friction, just a straight answer.</p>
+    <div class="cta-actions">
+      <a class="btn btn-primary btn-lg" href="https://deepshieldaigvs.netlify.app" target="_blank" rel="noopener"><svg class="icon"><use href="#i-shield"/></svg> Launch DeepShield AI</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-brand">
+    <svg width="22" height="22" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M24 4L42 11V22C42 33.5 34.6 41.8 24 45C13.4 41.8 6 33.5 6 22V11L24 4Z" fill="url(#g4)"/>
+      <defs><linearGradient id="g4" x1="6" y1="4" x2="42" y2="45" gradientUnits="userSpaceOnUse"><stop stop-color="#4f8cff"/><stop offset="1" stop-color="#a06bff"/></linearGradient></defs>
+    </svg>
+    DeepShield AI
+  </div>
+  <p>© 2026 DeepShield AI. Built for a safer, more authentic web.</p>
+</footer>
+
+<script>
+// scroll reveal
+const targets = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+targets.forEach(t => io.observe(t));
+
+// button ripple
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.btn');
+  if (!btn) return;
+  const rect = btn.getBoundingClientRect();
+  const r = document.createElement('span');
+  const size = Math.max(rect.width, rect.height) * 1.4;
+  r.className = 'ripple';
+  r.style.width = r.style.height = size + 'px';
+  r.style.left = (e.clientX - rect.left - size / 2) + 'px';
+  r.style.top = (e.clientY - rect.top - size / 2) + 'px';
+  btn.appendChild(r);
+  setTimeout(() => r.remove(), 620);
+});
+
+// orb parallax
+window.addEventListener('mousemove', (e) => {
+  const x = (e.clientX / window.innerWidth - 0.5) * 50;
+  const y = (e.clientY / window.innerHeight - 0.5) * 50;
+  document.getElementById('orbA').style.transform = `translate(${x}px, ${y}px)`;
+  document.getElementById('orbB').style.transform = `translate(${-x}px, ${-y}px)`;
+}, { passive: true });
+
+// animate mock confidence bar once visible
+const solutionVisual = document.getElementById('solutionVisual');
+const mockBar = document.getElementById('mockBar');
+const barIo = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { mockBar.style.width = '96%'; barIo.disconnect(); }
+  });
+}, { threshold: 0.4 });
+barIo.observe(solutionVisual);
+</script>
+</body>
+</html>
